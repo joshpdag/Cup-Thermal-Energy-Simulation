@@ -1,1 +1,1 @@
-# Cuo-Thermal-Energy-Simulation
+# Cup-Thermal-Energy-Simulation
