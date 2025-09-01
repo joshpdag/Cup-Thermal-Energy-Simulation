@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Energy Transfer: Cup Materials</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .simulation-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #particleCanvas {
+            border: 3px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .graph-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #graphCanvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-section {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+        }
+        
+        .section-title {
+            font-size: 1em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            text-align: center;
+        }
+        
+        .control-group {
+            margin-bottom: 12px;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+            font-size: 0.9em;
+        }
+        
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        
+        select {
+            background: white;
+            cursor: pointer;
+        }
+        
+        select:hover {
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .legend h3 {
+            margin-bottom: 10px;
+            color: #444;
+        }
+        
+        .legend-items {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #ddd;
+        }
+        
+        .info-panel {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2196F3;
+            margin-bottom: 20px;
+        }
+        
+        .info-panel h3 {
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
+        
+        .info-panel p {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .data-table-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .data-table .material-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .data-table .conductivity-value {
+            font-family: 'Courier New', monospace;
+            color: #0066cc;
+        }
+        
+        .data-table .insulation-rating {
+            font-weight: bold;
+        }
+        
+        .rating-excellent { color: #28a745; }
+        .rating-good { color: #28a745; }
+        .rating-moderate { color: #7cb342; }
+        .rating-fair { color: #ffc107; }
+        .rating-poor { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Thermal Energy Transfer Simulation</h1>
+        <p class="subtitle">Overhead view showing particle-level heat transfer through different cup materials</p>
+        
+        <div class="info-panel">
+            <h3>📊 How to Use This Simulation</h3>
+            <p><strong>1.</strong> Select initial cup water temperature (Hot or Cold) and cup material<br>
+            <strong>2.</strong> Click START to watch energy transfer through particle collisions<br>
+            <strong>3.</strong> Graph shows temperature over time - compare multiple materials!<br>
+            <strong>4.</strong> RESET starts a new trial; CLEAR TRIALS removes all previous graph lines</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-section">
+                <div class="section-title">🔬 Experiment Setup</div>
+                <div class="control-group">
+                    <label for="temperature">Initial Water Temperature:</label>
+                    <select id="temperature">
+                        <option value="hot">🔥 Hot (80°C)</option>
+                        <option value="cold">❄️ Cold (5°C)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="material">Cup Material:</label>
+                    <select id="material">
+                        <option value="stainless">Stainless Steel</option>
+                        <option value="plastic">Plastic</option>
+                        <option value="ceramic">Ceramic</option>
+                        <option value="styrofoam">Styrofoam</option>
+                        <option value="paper">Paper</option>
+                        <option value="glass">Glass</option>
+                        <option value="doubleStainless">Double Wall Stainless</option>
+                        <option value="doublePlastic">Double Wall Plastic</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <div class="section-title">⏯️ Playback Controls</div>
+                <div class="control-group">
+                    <label>Simulation:</label>
+                    <button id="startStop">▶️ START EXPERIMENT</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Speed:</label>
+                    <button id="speedToggle">🏃 NORMAL SPEED</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Reset:</label>
+                    <button id="reset">🔄 RESET</button>
+                </div>
+            </div>
+            
+            <div class="control-section">
+                <div class="section-title">📊 Data Management</div>
+                <div class="control-group">
+                    <label>Clear Trials:</label>
+                    <button id="clearGraph">📊 CLEAR TRIALS</button>
+                </div>
+                
+                <div class="control-group">
+                    <label>Graph Mode:</label>
+                    <button id="graphToggle">🔥 HOT TRIALS</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <h3>Kinetic Energy Color Scale</h3>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="color-box" style="background: #ff0000;"></div>
+                    <span>Very High KE</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background: #ff8800;"></div>
+                    <span>High KE</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background: #ffff00;"></div>
+                    <span>Medium KE</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background: #00ff00;"></div>
+                    <span>Low KE</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box" style="background: #0088ff;"></div>
+                    <span>Very Low KE</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="simulation-container">
+                <canvas id="particleCanvas" width="600" height="400"></canvas>
+                
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-label">Inside Temp</div>
+                        <div class="stat-value" id="insideTemp">--°C</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Wall Temp</div>
+                        <div class="stat-value" id="wallTemp">--°C</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Outside Temp</div>
+                        <div class="stat-value" id="outsideTemp">--°C</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeElapsed">0s</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="graph-container">
+                <div style="margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #444; text-align: center;">Temperature Over Time (Multiple Trials)</h3>
+                </div>
+                <canvas id="graphCanvas" width="600" height="350"></canvas>
+            </div>
+        </div>
+        
+        <div class="data-table-container">
+            <h3 style="margin-bottom: 15px; color: #444; text-align: center;">🔬 Real-World Material Properties</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Material</th>
+                        <th>Thermal Conductivity (W/m·K)</th>
+                        <th>Insulation Rating</th>
+                    </tr>
+                </thead>
+                <tbody id="materialTableBody">
+                    <!-- Table content will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        // Material properties with more realistic conductivity scaling
+        const materials = {
+            stainless: { 
+                name: 'Stainless Steel', 
+                conductivity: 100, 
+                color: '#c0c0c0',
+                realConductivity: 16.2,
+                insulationRating: 'Poor',
+                ratingClass: 'rating-poor',
+                bestUse: 'Short-term use, quick heating'
+            },
+            plastic: { 
+                name: 'Plastic', 
+                conductivity: 3, 
+                color: '#4a90e2',
+                realConductivity: 0.2,
+                insulationRating: 'Moderate',
+                ratingClass: 'rating-moderate',
+                bestUse: 'Moderate insulation, lightweight'
+            },
+            ceramic: { 
+                name: 'Ceramic', 
+                conductivity: 25, 
+                color: '#d4a574',
+                realConductivity: 1.4,
+                insulationRating: 'Fair',
+                ratingClass: 'rating-fair',
+                bestUse: 'Heat retention, durability'
+            },
+            styrofoam: { 
+                name: 'Styrofoam', 
+                conductivity: 0.2, 
+                color: '#f0f0f0',
+                realConductivity: 0.03,
+                insulationRating: 'Excellent',
+                ratingClass: 'rating-excellent',
+                bestUse: 'Maximum insulation, disposable'
+            },
+            paper: { 
+                name: 'Paper', 
+                conductivity: 0.3, 
+                color: '#e8dcc0',
+                realConductivity: 0.05,
+                insulationRating: 'Moderate',
+                ratingClass: 'rating-moderate',
+                bestUse: 'Eco-friendly, short-term'
+            },
+            glass: { 
+                name: 'Glass', 
+                conductivity: 7, 
+                color: '#b3d9ff',
+                realConductivity: 1.0,
+                insulationRating: 'Fair',
+                ratingClass: 'rating-fair',
+                bestUse: 'Visibility, taste neutrality'
+            },
+            doubleStainless: { 
+                name: 'Double Wall Stainless', 
+                conductivity: 0.1, 
+                color: '#a0a0a0',
+                realConductivity: 0.02,
+                insulationRating: 'Excellent',
+                ratingClass: 'rating-excellent',
+                bestUse: 'Premium insulation, durability'
+            },
+            doublePlastic: { 
+                name: 'Double Wall Plastic', 
+                conductivity: 0.15, 
+                color: '#6ba3e5',
+                realConductivity: 0.04,
+                insulationRating: 'Excellent',
+                ratingClass: 'rating-excellent',
+                bestUse: 'Good insulation, lightweight'
+            }
+        };
+        
+        // Temperature conversion utilities
+        function keToTemp(ke) {
+            // Map KE (0-1) to temperature (5°C to 80°C)
+            return 5 + (ke * 75);
+        }
+        
+        function tempToKe(temp) {
+            // Map temperature to KE
+            return Math.max(0, Math.min(1, (temp - 5) / 75));
+        }
+        
+        class Particle {
+            constructor(x, y, zone, initialTemp) {
+                this.x = x;
+                this.y = y;
+                this.zone = zone;
+                this.temperature = initialTemp;
+                this.kineticEnergy = tempToKe(initialTemp);
+                this.radius = 4.5; // Uniform size for all particles
+                this.energyFlow = 0; // Track recent energy transfers for visualization
+                
+                if (zone === 'wall') {
+                    this.equilibriumX = x;
+                    this.equilibriumY = y;
+                    this.vx = 0;
+                    this.vy = 0;
+                } else if (zone === 'inside') {
+                    this.vx = (Math.random() - 0.5) * 1;
+                    this.vy = (Math.random() - 0.5) * 1;
+                } else {
+                    // Gas particles move faster for better collision frequency
+                    const gasSpeed = (zone === 'wallGas') ? 3 : 2.5;
+                    this.vx = (Math.random() - 0.5) * gasSpeed;
+                    this.vy = (Math.random() - 0.5) * gasSpeed;
+                }
+            }
+            
+            updatePosition(speedMult) {
+                const temp = keToTemp(this.kineticEnergy);
+                const agitation = Math.max(0.1, temp / 80); // More agitation at higher temps
+                
+                if (this.zone === 'wall') {
+                    const vibration = agitation * 12;
+                    const angle = Math.random() * Math.PI * 2;
+                    this.x = this.equilibriumX + Math.cos(angle) * vibration;
+                    this.y = this.equilibriumY + Math.sin(angle) * vibration;
+                } else if (this.zone === 'inside') {
+                    const speed = agitation * 2 * speedMult;
+                    this.vx += (Math.random() - 0.5) * speed;
+                    this.vy += (Math.random() - 0.5) * speed;
+                    this.x += this.vx * speedMult;
+                    this.y += this.vy * speedMult;
+                    this.vx *= 0.85;
+                    this.vy *= 0.85;
+                } else {
+                    // Gas particles move more actively for better energy transfer
+                    const baseSpeed = (this.zone === 'wallGas') ? 2.5 : 2.0;
+                    const tempBoost = Math.max(0.5, this.temperature / 40);
+                    this.x += this.vx * speedMult;
+                    this.y += this.vy * speedMult;
+                    const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+                    const targetSpeed = baseSpeed * tempBoost;
+                    if (speed > 0) {
+                        this.vx = (this.vx / speed) * targetSpeed;
+                        this.vy = (this.vy / speed) * targetSpeed;
+                    }
+                }
+                
+                // Outside particles no longer reset to ambient - they change temperature through collisions
+                // This allows clearer visualization of energy transfer
+                
+                // Update temperature from KE
+                this.temperature = keToTemp(this.kineticEnergy);
+                
+                // Decay energy flow visualization
+                this.energyFlow *= 0.95;
+            }
+            
+            transferEnergy(other, conductivity, speedMult) {
+                const dx = other.x - this.x;
+                const dy = other.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                let maxDist = this.radius * 3;
+                if (this.zone === 'wall' || other.zone === 'wall') {
+                    maxDist = 45; // Larger interaction range for wall particles
+                }
+                // Increase interaction range for gas particles to improve energy transfer
+                if (this.zone === 'outside' || other.zone === 'outside' || 
+                    this.zone === 'wallGas' || other.zone === 'wallGas') {
+                    maxDist = 55; // Even larger range for gas particles
+                }
+                
+                if (dist < maxDist && dist > 0.1) {
+                    // Calculate temperature difference
+                    const tempDiff = this.temperature - other.temperature;
+                    if (Math.abs(tempDiff) < 0.1) return; // Skip if temperatures are very close
+                    
+                    let rate = 0;
+                    
+                    // Check zone relationships for directional transfer
+                    const isAdjacent = 
+                        (this.zone === 'inside' && other.zone === 'wall') ||
+                        (this.zone === 'wall' && other.zone === 'inside') ||
+                        (this.zone === 'wall' && other.zone === 'outside') ||
+                        (this.zone === 'outside' && other.zone === 'wall') ||
+                        (this.zone === 'wall' && other.zone === 'wallGas') ||
+                        (this.zone === 'wallGas' && other.zone === 'wall') ||
+                        (this.zone === 'wallGas' && other.zone === 'outside') ||
+                        (this.zone === 'outside' && other.zone === 'wallGas');
+                    
+                    const isSameZone = this.zone === other.zone;
+                    
+                    if (isAdjacent) {
+                        // Cross-boundary transfer - enhanced for gas-solid interactions
+                        if (this.zone === 'wallGas' || other.zone === 'wallGas') {
+                            rate = 0.008; // Faster through gas gap for classroom viewing
+                        } else if ((this.zone === 'outside' || other.zone === 'outside') && 
+                                  (this.zone === 'wall' || other.zone === 'wall')) {
+                            rate = 0.025; // Enhanced gas-to-solid transfer for visibility
+                        } else {
+                            // Scale transfer rate more dramatically with conductivity
+                            if (conductivity >= 50) rate = 0.15;      // Very fast for metals
+                            else if (conductivity >= 20) rate = 0.08; // Fast for ceramics/glass
+                            else if (conductivity >= 5) rate = 0.04;  // Moderate for plastics
+                            else if (conductivity >= 1) rate = 0.02;  // Slow for thick plastics
+                            else if (conductivity >= 0.3) rate = 0.008; // Very slow for paper
+                            else rate = 0.003; // Extremely slow for best insulators
+                        }
+                    } else if (isSameZone) {
+                        // Within-zone equilibration - faster for better conductors
+                        if (this.zone === 'wall') {
+                            rate = Math.min(0.12, conductivity / 200 + 0.02);
+                        } else if (this.zone === 'wallGas') {
+                            rate = 0.008; // Slow mixing in gas gap
+                        } else {
+                            rate = 0.025; // Liquid/gas mixing
+                        }
+                    }
+                    
+                    if (rate > 0) {
+                        // Distance falloff for realistic heat conduction
+                        const falloff = Math.max(0.2, 1 - (dist - this.radius * 2) / (maxDist - this.radius * 2));
+                        rate *= falloff * speedMult;
+                        
+                        // Temperature-based transfer with conservation
+                        const maxTempTransfer = Math.min(5, Math.abs(tempDiff) * 0.3); // Max 5°C transfer per step
+                        const tempTransfer = Math.sign(tempDiff) * Math.min(maxTempTransfer, Math.abs(tempDiff) * rate);
+                        
+                        // Apply transfer
+                        this.temperature -= tempTransfer;
+                        other.temperature += tempTransfer;
+                        
+                        // Update KE from temperature
+                        this.kineticEnergy = tempToKe(this.temperature);
+                        other.kineticEnergy = tempToKe(other.temperature);
+                        
+                        // Keep temperatures in realistic bounds
+                        this.temperature = Math.max(0, Math.min(100, this.temperature));
+                        other.temperature = Math.max(0, Math.min(100, other.temperature));
+                        this.kineticEnergy = tempToKe(this.temperature);
+                        other.kineticEnergy = tempToKe(other.temperature);
+                        
+                        // Track energy flow for visualization
+                        this.energyFlow = Math.max(-1, Math.min(1, this.energyFlow - tempTransfer * 0.5));
+                        other.energyFlow = Math.max(-1, Math.min(1, other.energyFlow + tempTransfer * 0.5));
+                    }
+                }
+            }
+            
+            checkBounds(xMin, xMax, yMin, yMax) {
+                if (this.zone === 'wall') {
+                    const maxDist = 18;
+                    const dx = this.x - this.equilibriumX;
+                    const dy = this.y - this.equilibriumY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist > maxDist) {
+                        this.x = this.equilibriumX + (dx / dist) * maxDist;
+                        this.y = this.equilibriumY + (dy / dist) * maxDist;
+                    }
+                    return;
+                }
+                
+                if (this.x - this.radius < xMin || this.x + this.radius > xMax) {
+                    this.vx *= -0.8;
+                    this.x = Math.max(xMin + this.radius, Math.min(xMax - this.radius, this.x));
+                }
+                if (this.y - this.radius < yMin || this.y + this.radius > yMax) {
+                    this.vy *= -0.8;
+                    this.y = Math.max(yMin + this.radius, Math.min(yMax - this.radius, this.y));
+                }
+            }
+            
+            getColor() {
+                const temp = this.temperature;
+                if (temp > 70) return '#ff0000';      // Hot red
+                if (temp > 50) return '#ff8800';      // Orange
+                if (temp > 30) return '#ffff00';      // Yellow
+                if (temp > 15) return '#00ff00';      // Green
+                return '#0088ff';                     // Cold blue
+            }
+        }
+        
+        class Simulation {
+            constructor() {
+                this.canvas = document.getElementById('particleCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.graphCanvas = document.getElementById('graphCanvas');
+                this.graphCtx = this.graphCanvas.getContext('2d');
+                
+                this.particles = [];
+                this.running = false;
+                this.speedMode = 'normal'; // 'normal', 'slow', 'double'
+                this.time = 0;
+                this.currentTrialData = []; // This will be properly isolated when first trial is saved
+                this.allTrials = [];
+                this.trialColors = ['#ff4444', '#4444ff', '#44ff44', '#ff44ff', '#ffaa00', '#00ffff'];
+                this.currentTrialIndex = 0;
+                this.graphMode = 'hot'; // 'hot' or 'cold' - determines which trials to show
+                
+                this.initParticles();
+                this.setupEventListeners();
+            }
+            
+            initParticles() {
+                // Save current trial if it has data - create proper deep copy to prevent reference issues
+                if (this.currentTrialData && this.currentTrialData.length > 0) {
+                    // Create a completely isolated copy of the data array
+                    const isolatedData = [...this.currentTrialData.map(temp => Number(temp))];
+                    
+                    this.allTrials.push({
+                        data: isolatedData,
+                        material: this.currentTrialMaterial || 'Unknown',
+                        temperature: this.currentTrialTemp || 'unknown',
+                        color: this.trialColors[this.currentTrialIndex % this.trialColors.length]
+                    });
+                    this.currentTrialIndex++;
+                }
+                
+                this.particles = [];
+                const temp = document.getElementById('temperature').value;
+                const materialKey = document.getElementById('material').value;
+                
+                // Store current trial settings for proper labeling later
+                this.currentTrialMaterial = materials[materialKey].name;
+                this.currentTrialTemp = temp;
+                
+                // Create completely new array to prevent any reference issues
+                this.currentTrialData = [];
+                
+                // Reset time and clear any existing data
+                this.time = 0;
+                
+                const roomTemp = 20; // 20°C
+                const insideTemp = temp === 'hot' ? 80 : 5; // 80°C or 5°C
+                // For cold water, make outside much warmer and wall intermediate for better heat transfer visibility
+                const outsideTemp = temp === 'cold' ? 50 : roomTemp; // Increased to 50°C for stronger gradient
+                
+                // Wall temperature: for cold experiments, start wall at intermediate temp for better energy flow
+                const wallTemp = temp === 'cold' ? 25 : roomTemp; // Increased to 25°C for stronger gradient
+                
+                // Inside particles (liquid)
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const x = 20 + col * 22 + (row % 2) * 11 + (Math.random() - 0.5) * 8;
+                        const y = 30 + row * 44 + (Math.random() - 0.5) * 8;
+                        if (x < 190 && y < 380) {
+                            this.particles.push(new Particle(x, y, 'inside', insideTemp + (Math.random() - 0.5) * 5));
+                        }
+                    }
+                }
+                
+                // Wall particles
+                const isDoubleWall = materialKey === 'doubleStainless' || materialKey === 'doublePlastic';
+                
+                if (isDoubleWall) {
+                    // Left wall
+                    for (let row = 0; row < 10; row++) {
+                        for (let col = 0; col < 4; col++) {
+                            const x = 205 + col * 8 + (row % 2) * 4;
+                            const y = 20 + row * 32;
+                            if (y < 380) {
+                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                            }
+                        }
+                    }
+                    
+                    // Gas in middle
+                    for (let i = 0; i < 20; i++) {
+                        this.particles.push(new Particle(
+                            233 + Math.random() * 134,
+                            20 + Math.random() * 360,
+                            'wallGas',
+                            roomTemp + (Math.random() - 0.5) * 2
+                        ));
+                    }
+                    
+                    // Right wall
+                    for (let row = 0; row < 10; row++) {
+                        for (let col = 0; col < 4; col++) {
+                            const x = 367 + col * 8 + (row % 2) * 4;
+                            const y = 20 + row * 32;
+                            if (y < 380) {
+                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                            }
+                        }
+                    }
+                } else {
+                    // Single wall
+                    for (let row = 0; row < 10; row++) {
+                        for (let col = 0; col < 12; col++) {
+                            const x = 205 + col * 16 + (row % 2) * 8;
+                            const y = 20 + row * 32;
+                            if (y < 380 && x < 395) {
+                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                            }
+                        }
+                    }
+                }
+                
+                // Outside particles (gas) - increased count for better thermal mass balance
+                for (let i = 0; i < 60; i++) {
+                    this.particles.push(new Particle(
+                        410 + Math.random() * 180,
+                        20 + Math.random() * 360,
+                        'outside',
+                        outsideTemp + (Math.random() - 0.5) * 2
+                    ));
+                }
+                
+                // Reset current trial data
+                this.time = 0;
+                this.currentTrialData = [];
+                this.updateStats();
+                this.drawGraph();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('startStop').addEventListener('click', () => {
+                    this.running = !this.running;
+                    document.getElementById('startStop').textContent = this.running ? '⏸️ PAUSE' : '▶️ START EXPERIMENT';
+                    if (this.running) this.animate();
+                });
+                
+                document.getElementById('speedToggle').addEventListener('click', () => {
+                    // Cycle through three speeds: normal -> slow -> double -> normal
+                    if (this.speedMode === 'normal') {
+                        this.speedMode = 'slow';
+                        document.getElementById('speedToggle').textContent = '🐢 SLOW MOTION';
+                    } else if (this.speedMode === 'slow') {
+                        this.speedMode = 'double';
+                        document.getElementById('speedToggle').textContent = '⚡ DOUBLE SPEED';
+                    } else {
+                        this.speedMode = 'normal';
+                        document.getElementById('speedToggle').textContent = '🏃 NORMAL SPEED';
+                    }
+                });
+                
+                document.getElementById('reset').addEventListener('click', () => {
+                    this.running = false;
+                    this.speedMode = 'normal';
+                    document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
+                    document.getElementById('speedToggle').textContent = '🏃 NORMAL SPEED';
+                    
+                    this.initParticles();
+                    this.updateInfo();
+                    this.draw(); // Ensure visuals update immediately
+                });
+                
+                document.getElementById('clearGraph').addEventListener('click', () => {
+                    this.allTrials = [];
+                    this.currentTrialIndex = 0;
+                    this.currentTrialData = [];
+                    this.drawGraph();
+                });
+                
+                document.getElementById('material').addEventListener('change', () => {
+                    // Auto-pause and reset if simulation is running
+                    if (this.running) {
+                        this.running = false;
+                        document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
+                        this.initParticles();
+                        this.draw(); // Force visual update
+                    }
+                    this.updateInfo(); // This includes table update
+                });
+                
+                document.getElementById('temperature').addEventListener('change', () => {
+                    // Auto-pause and reset if simulation is running, otherwise just reset
+                    if (this.running) {
+                        this.running = false;
+                        document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
+                    }
+                    this.initParticles();
+                    this.draw(); // Force visual update
+                });
+                
+                // Ensure toggle button exists before adding listener
+                const toggleButton = document.getElementById('graphToggle');
+                if (toggleButton) {
+                    toggleButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.graphMode = this.graphMode === 'hot' ? 'cold' : 'hot';
+                        toggleButton.textContent = this.graphMode === 'hot' ? '🔥 HOT TRIALS' : '❄️ COLD TRIALS';
+                        this.drawGraph();
+                    });
+                }
+            }
+            
+            animate() {
+                if (!this.running) return;
+                
+                const materialKey = document.getElementById('material').value;
+                const conductivity = materials[materialKey].conductivity;
+                
+                // Set speed multiplier based on speed mode
+                let speedMult;
+                if (this.speedMode === 'slow') {
+                    speedMult = 0.3;
+                } else if (this.speedMode === 'double') {
+                    speedMult = 2.0;
+                } else {
+                    speedMult = 1.0; // normal
+                }
+                
+                // Update particle positions
+                for (let particle of this.particles) {
+                    particle.updatePosition(speedMult);
+                }
+                
+                // Handle liquid particle collisions for more realistic behavior
+                const liquidParticles = this.particles.filter(p => p.zone === 'inside');
+                for (let i = 0; i < liquidParticles.length; i++) {
+                    for (let j = i + 1; j < liquidParticles.length; j++) {
+                        const p1 = liquidParticles[i];
+                        const p2 = liquidParticles[j];
+                        const dx = p2.x - p1.x;
+                        const dy = p2.y - p1.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist > 0 && dist < p1.radius * 2.0) { // Reduced from 2.5 to 2.0 to reduce clustering
+                            const push = (p1.radius * 2.0 - dist) * 0.1; // Reduced push force from 0.15 to 0.1
+                            p1.x -= (dx / dist) * push;
+                            p1.y -= (dy / dist) * push;
+                            p2.x += (dx / dist) * push;
+                            p2.y += (dy / dist) * push;
+                        }
+                    }
+                }
+                
+                // Energy transfers - process each pair only once for efficiency
+                for (let i = 0; i < this.particles.length; i++) {
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        this.particles[i].transferEnergy(this.particles[j], conductivity, speedMult);
+                    }
+                }
+                
+                // Apply boundary checks
+                for (let particle of this.particles) {
+                    if (particle.zone === 'inside') {
+                        particle.checkBounds(5, 195, 5, 395);
+                    } else if (particle.zone === 'wall') {
+                        particle.checkBounds(205, 395, 5, 395);
+                    } else if (particle.zone === 'wallGas') {
+                        particle.checkBounds(233, 367, 5, 395);
+                    } else {
+                        particle.checkBounds(405, 595, 5, 395);
+                    }
+                }
+                
+                this.draw();
+                
+                // Set time increment based on speed mode
+                let timeInc;
+                if (this.speedMode === 'slow') {
+                    timeInc = 0.3;
+                } else if (this.speedMode === 'double') {
+                    timeInc = 2.0;
+                } else {
+                    timeInc = 1.0; // normal
+                }
+                
+                // Update graph once every 60 animation frames (every simulation second)
+                if (this.time % 60 < timeInc) {
+                    this.updateGraph();
+                }
+                
+                if (this.time % 4 < timeInc) {
+                    this.updateStats();
+                }
+                
+                this.time += timeInc;
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw temperature gradient backgrounds for better visualization
+                const materialKey = document.getElementById('material').value;
+                const isDoubleWall = materialKey === 'doubleStainless' || materialKey === 'doublePlastic';
+                
+                // Create temperature-based gradients
+                if (isDoubleWall) {
+                    this.ctx.fillStyle = materials[materialKey].color;
+                    this.ctx.globalAlpha = 0.3;
+                    this.ctx.fillRect(200, 0, 33, 400);
+                    this.ctx.fillRect(367, 0, 33, 400);
+                    this.ctx.fillStyle = '#e0f7ff';
+                    this.ctx.globalAlpha = 0.2;
+                    this.ctx.fillRect(233, 0, 134, 400);
+                    this.ctx.globalAlpha = 1;
+                } else {
+                    this.ctx.fillStyle = materials[materialKey].color;
+                    this.ctx.globalAlpha = 0.3;
+                    this.ctx.fillRect(200, 0, 200, 400);
+                    this.ctx.globalAlpha = 1;
+                }
+                
+                // Draw boundary lines
+                this.ctx.strokeStyle = '#333';
+                this.ctx.lineWidth = 2;
+                this.ctx.setLineDash([]);
+                // Remove boundary lines - let students observe zones through particle behavior
+                // this.ctx.beginPath();
+                // this.ctx.moveTo(200, 0);
+                // this.ctx.lineTo(200, 400);
+                // this.ctx.moveTo(400, 0);
+                // this.ctx.lineTo(400, 400);
+                // this.ctx.stroke();
+                
+                // Draw particles with uniform sizing
+                for (let particle of this.particles) {
+                    this.ctx.fillStyle = particle.getColor();
+                    
+                    if (particle.zone === 'wall') {
+                        // Wall particles as squares with vibration visualization
+                        const vibration = Math.max(0, particle.temperature / 80) * 2;
+                        this.ctx.fillRect(
+                            particle.x - particle.radius - vibration,
+                            particle.y - particle.radius - vibration,
+                            (particle.radius + vibration) * 2,
+                            (particle.radius + vibration) * 2
+                        );
+                    } else if (particle.zone === 'inside') {
+                        // Liquid particles as circles
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    } else if (particle.zone === 'wallGas') {
+                        // Gas particles as circles
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    } else {
+                        // Outside gas particles as circles
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+                
+                // Labels
+                this.ctx.fillStyle = '#333';
+                this.ctx.font = 'bold 14px Arial';
+                this.ctx.fillText('Inside Cup', 60, 15);
+                this.ctx.fillText('Cup Wall', 260, 15);
+                this.ctx.fillText('Outside Cup', 460, 15);
+                this.ctx.font = 'italic 12px Arial';
+                this.ctx.fillText('(Liquid)', 80, 390);
+                this.ctx.fillText(isDoubleWall ? '(Double Wall)' : '(Material)', 250, 390);
+                this.ctx.fillText('(Room Air)', 470, 390);
+            }
+            
+            updateGraph() {
+                const insideParticles = this.particles.filter(p => p.zone === 'inside');
+                
+                if (insideParticles.length === 0) return;
+                
+                // Stop after collecting 60 data points (60 seconds worth)
+                if (this.currentTrialData.length >= 60) return;
+                
+                const avgInsideTemp = insideParticles.reduce((sum, p) => sum + p.temperature, 0) / insideParticles.length;
+                this.currentTrialData.push(avgInsideTemp);
+                
+                this.drawGraph();
+            }
+            
+            drawGraph() {
+                const ctx = this.graphCtx;
+                const width = this.graphCanvas.width;
+                const height = this.graphCanvas.height;
+                
+                ctx.clearRect(0, 0, width, height);
+                
+                // Filter trials based on current graph mode
+                const relevantTrials = this.allTrials.filter(trial => trial.temperature === this.graphMode);
+                const showCurrentTrial = this.currentTrialTemp === this.graphMode && this.currentTrialData.length > 0;
+                
+                // Use static Y-axis ranges for better comparison between materials
+                let minTemp, maxTemp;
+                
+                if (this.graphMode === 'hot') {
+                    // Hot water cooling: 25°C to 85°C range
+                    minTemp = 25;
+                    maxTemp = 85;
+                } else {
+                    // Cold water warming: 0°C to 20°C range (tighter for better resolution)
+                    minTemp = 0;
+                    maxTemp = 20;
+                }
+                
+                const tempRange = maxTemp - minTemp;
+                
+                // Grid
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(40, height * i / 10);
+                    ctx.lineTo(width - 10, height * i / 10);
+                    ctx.stroke();
+                }
+                
+                // Axes
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(40, 10);
+                ctx.lineTo(40, height - 30);
+                ctx.lineTo(width - 10, height - 30);
+                ctx.stroke();
+                
+                // Dynamic Y-axis labels
+                ctx.fillStyle = '#666';
+                ctx.font = '12px Arial';
+                ctx.fillText(maxTemp.toFixed(0) + '°C', 5, 15);
+                ctx.fillText(((minTemp + maxTemp) / 2).toFixed(0) + '°C', 5, height/2);
+                ctx.fillText(minTemp.toFixed(0) + '°C', 5, height - 35);
+                
+                // Static X-axis labels for 60-second range
+                ctx.fillText('0s', 40, height - 10);
+                ctx.fillText('30s', width/2 - 10, height - 10);
+                ctx.fillText('60s', width - 30, height - 10);
+                ctx.fillText('Inside Temp', 5, 30);
+                
+                // Draw relevant previous trials with static 60-second x-axis
+                const maxDataPoints = 60;
+                for (let trial of relevantTrials) {
+                    if (trial.data.length > 1) {
+                        const xStep = (width - 60) / maxDataPoints;
+                        
+                        ctx.strokeStyle = trial.color;
+                        ctx.lineWidth = 2;
+                        ctx.globalAlpha = 0.5;
+                        ctx.beginPath();
+                        for (let i = 0; i < Math.min(trial.data.length, maxDataPoints); i++) {
+                            const x = 50 + i * xStep;
+                            const normalizedTemp = (trial.data[i] - minTemp) / tempRange;
+                            const y = height - 40 - (normalizedTemp * (height - 50));
+                            if (i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+                
+                // Draw current trial if it matches the current mode with static x-axis
+                if (showCurrentTrial && this.currentTrialData.length > 1) {
+                    const xStep = (width - 60) / maxDataPoints;
+                    
+                    ctx.strokeStyle = this.trialColors[this.currentTrialIndex % this.trialColors.length];
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    for (let i = 0; i < Math.min(this.currentTrialData.length, maxDataPoints); i++) {
+                        const x = 50 + i * xStep;
+                        const normalizedTemp = (this.currentTrialData[i] - minTemp) / tempRange;
+                        const y = height - 40 - (normalizedTemp * (height - 50));
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                
+                // Legend for relevant trials
+                let legendY = 20;
+                
+                // Current trial (if matches mode)
+                if (showCurrentTrial) {
+                    ctx.fillStyle = this.trialColors[this.currentTrialIndex % this.trialColors.length];
+                    ctx.fillRect(width - 200, legendY, 20, 3);
+                    ctx.fillStyle = '#333';
+                    ctx.font = '10px Arial';
+                    ctx.fillText(`Current: ${this.currentTrialMaterial} (${this.currentTrialTemp})`, width - 175, legendY + 5);
+                    legendY += 20;
+                }
+                
+                // Previous relevant trials
+                for (let i = relevantTrials.length - 1; i >= Math.max(0, relevantTrials.length - 5); i--) {
+                    const trial = relevantTrials[i];
+                    ctx.fillStyle = trial.color;
+                    ctx.fillRect(width - 200, legendY, 20, 3);
+                    ctx.fillStyle = '#333';
+                    ctx.font = '10px Arial';
+                    ctx.fillText(`${trial.material} (${trial.temperature})`, width - 175, legendY + 5);
+                    legendY += 20;
+                    if (legendY > 120) break;
+                }
+                
+                // Show current range and trial count
+                ctx.fillStyle = '#999';
+                ctx.font = '9px Arial';
+                ctx.fillText(`Range: ${minTemp.toFixed(0)}°C - ${maxTemp.toFixed(0)}°C`, width - 120, height - 15);
+                const trialCount = relevantTrials.length + (showCurrentTrial ? 1 : 0);
+                ctx.fillText(`${trialCount} ${this.graphMode} trial${trialCount !== 1 ? 's' : ''}`, width - 200, height - 15);
+            }
+            
+            updateStats() {
+                const insideParticles = this.particles.filter(p => p.zone === 'inside');
+                const wallParticles = this.particles.filter(p => p.zone === 'wall');
+                const wallGasParticles = this.particles.filter(p => p.zone === 'wallGas');
+                const outsideParticles = this.particles.filter(p => p.zone === 'outside');
+                
+                if (insideParticles.length === 0 || outsideParticles.length === 0) return;
+                
+                const avgInsideTemp = insideParticles.reduce((sum, p) => sum + p.temperature, 0) / insideParticles.length;
+                const avgOutsideTemp = outsideParticles.reduce((sum, p) => sum + p.temperature, 0) / outsideParticles.length;
+                
+                let avgWallTemp = 0;
+                if (wallParticles.length > 0) {
+                    const totalWallTemp = wallParticles.reduce((sum, p) => sum + p.temperature, 0);
+                    avgWallTemp = totalWallTemp / wallParticles.length;
+                }
+                
+                // Include wall gas temperature if present
+                if (wallGasParticles.length > 0) {
+                    const avgWallGasTemp = wallGasParticles.reduce((sum, p) => sum + p.temperature, 0) / wallGasParticles.length;
+                    // For double wall, show combined wall system temperature
+                    avgWallTemp = (avgWallTemp * wallParticles.length + avgWallGasTemp * wallGasParticles.length) / 
+                                (wallParticles.length + wallGasParticles.length);
+                }
+                
+                // Display temperatures
+                document.getElementById('insideTemp').textContent = avgInsideTemp.toFixed(1) + '°C';
+                document.getElementById('wallTemp').textContent = avgWallTemp.toFixed(1) + '°C';
+                document.getElementById('outsideTemp').textContent = avgOutsideTemp.toFixed(1) + '°C';
+                
+                // Display simulation time (not real time)
+                const simTimeSeconds = this.time / 60; // Convert animation frames to simulation seconds
+                document.getElementById('timeElapsed').textContent = simTimeSeconds.toFixed(1) + 's';
+            }
+            
+            updateInfo() {
+                const materialKey = document.getElementById('material').value;
+                const material = materials[materialKey];
+                this.populateMaterialTable();
+                // Removed materialInfo display since we cleaned up the instructions
+                // Info is now available through material selection context
+            }
+            
+            populateMaterialTable() {
+                const tbody = document.getElementById('materialTableBody');
+                tbody.innerHTML = '';
+                
+                // Sort materials by thermal conductivity for better comparison
+                const sortedMaterials = Object.entries(materials).sort((a, b) => 
+                    b[1].realConductivity - a[1].realConductivity
+                );
+                
+                const selectedMaterial = document.getElementById('material').value;
+                
+                for (let [key, material] of sortedMaterials) {
+                    const row = document.createElement('tr');
+                    if (key === selectedMaterial) {
+                        row.style.backgroundColor = '#e3f2fd';
+                        row.style.fontWeight = 'bold';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="material-name">${material.name}</td>
+                        <td class="conductivity-value">${material.realConductivity}</td>
+                        <td class="insulation-rating ${material.ratingClass}">${material.insulationRating}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                }
+            }
+        }
+        
+        // Initialize
+        const sim = new Simulation();
+        sim.draw();
+        sim.drawGraph();
+        sim.updateInfo();
+        sim.populateMaterialTable();
+    </script>
+</body>
+</html>
