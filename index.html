@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thermal Energy Transfer: Cup Materials</title>
+    <title>Atomic-Level View of Hot and Cold Cups</title>
     <style>
         * {
             margin: 0;
@@ -300,13 +300,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>🧪 Thermal Energy Transfer Simulation</h1>
-        <p class="subtitle">Overhead view showing particle-level heat transfer through different cup materials</p>
+        <h1>🧪 Atomic-Level View of Hot and Cold Cups</h1>
+        <p class="subtitle">Overhead view showing atomic-level heat transfer through different cup materials</p>
         
         <div class="info-panel">
             <h3>📊 How to Use This Simulation</h3>
             <p><strong>1.</strong> Select initial cup water temperature (Hot or Cold) and cup material<br>
-            <strong>2.</strong> Click START to watch energy transfer through particle collisions<br>
+            <strong>2.</strong> Click START to watch how atom behavior can affect temperature change of the different parts of the cup<br>
             <strong>3.</strong> Graph shows temperature over time - compare multiple materials!<br>
             <strong>4.</strong> RESET starts a new trial; CLEAR TRIALS removes all previous graph lines</p>
         </div>
@@ -532,14 +532,14 @@
             return Math.max(0, Math.min(1, (temp - 5) / 75));
         }
         
-        class Particle {
+        class Atom {
             constructor(x, y, zone, initialTemp) {
                 this.x = x;
                 this.y = y;
                 this.zone = zone;
                 this.temperature = initialTemp;
                 this.kineticEnergy = tempToKe(initialTemp);
-                this.radius = 4.5; // Uniform size for all particles
+                this.radius = 4.5; // Uniform size for all atoms
                 this.energyFlow = 0; // Track recent energy transfers for visualization
                 
                 if (zone === 'wall') {
@@ -551,7 +551,7 @@
                     this.vx = (Math.random() - 0.5) * 1;
                     this.vy = (Math.random() - 0.5) * 1;
                 } else {
-                    // Gas particles move faster for better collision frequency
+                    // Gas atoms move faster for better collision frequency
                     const gasSpeed = (zone === 'wallGas') ? 3 : 2.5;
                     this.vx = (Math.random() - 0.5) * gasSpeed;
                     this.vy = (Math.random() - 0.5) * gasSpeed;
@@ -576,7 +576,7 @@
                     this.vx *= 0.85;
                     this.vy *= 0.85;
                 } else {
-                    // Gas particles move more actively for better energy transfer
+                    // Gas atoms move more actively for better energy transfer
                     const baseSpeed = (this.zone === 'wallGas') ? 2.5 : 2.0;
                     const tempBoost = Math.max(0.5, this.temperature / 40);
                     this.x += this.vx * speedMult;
@@ -589,7 +589,7 @@
                     }
                 }
                 
-                // Outside particles no longer reset to ambient - they change temperature through collisions
+                // Outside atoms no longer reset to ambient - they change temperature through collisions
                 // This allows clearer visualization of energy transfer
                 
                 // Update temperature from KE
@@ -606,12 +606,12 @@
                 
                 let maxDist = this.radius * 3;
                 if (this.zone === 'wall' || other.zone === 'wall') {
-                    maxDist = 45; // Larger interaction range for wall particles
+                    maxDist = 45; // Larger interaction range for wall atoms
                 }
-                // Increase interaction range for gas particles to improve energy transfer
+                // Increase interaction range for gas atoms to improve energy transfer
                 if (this.zone === 'outside' || other.zone === 'outside' || 
                     this.zone === 'wallGas' || other.zone === 'wallGas') {
-                    maxDist = 55; // Even larger range for gas particles
+                    maxDist = 55; // Even larger range for gas atoms
                 }
                 
                 if (dist < maxDist && dist > 0.1) {
@@ -731,7 +731,7 @@
                 this.graphCanvas = document.getElementById('graphCanvas');
                 this.graphCtx = this.graphCanvas.getContext('2d');
                 
-                this.particles = [];
+                this.atoms = [];
                 this.running = false;
                 this.speedMode = 'normal'; // 'normal', 'slow', 'double'
                 this.time = 0;
@@ -741,11 +741,11 @@
                 this.currentTrialIndex = 0;
                 this.graphMode = 'hot'; // 'hot' or 'cold' - determines which trials to show
                 
-                this.initParticles();
+                this.initAtoms();
                 this.setupEventListeners();
             }
             
-            initParticles() {
+            initAtoms() {
                 // Save current trial if it has data - create proper deep copy to prevent reference issues
                 if (this.currentTrialData && this.currentTrialData.length > 0) {
                     // Create a completely isolated copy of the data array
@@ -760,7 +760,7 @@
                     this.currentTrialIndex++;
                 }
                 
-                this.particles = [];
+                this.atoms = [];
                 const temp = document.getElementById('temperature').value;
                 const materialKey = document.getElementById('material').value;
                 
@@ -782,18 +782,18 @@
                 // Wall temperature: for cold experiments, start wall at intermediate temp for better energy flow
                 const wallTemp = temp === 'cold' ? 25 : roomTemp; // Increased to 25°C for stronger gradient
                 
-                // Inside particles (liquid)
+                // Inside atoms (liquid)
                 for (let row = 0; row < 8; row++) {
                     for (let col = 0; col < 8; col++) {
                         const x = 20 + col * 22 + (row % 2) * 11 + (Math.random() - 0.5) * 8;
                         const y = 30 + row * 44 + (Math.random() - 0.5) * 8;
                         if (x < 190 && y < 380) {
-                            this.particles.push(new Particle(x, y, 'inside', insideTemp + (Math.random() - 0.5) * 5));
+                            this.atoms.push(new Atom(x, y, 'inside', insideTemp + (Math.random() - 0.5) * 5));
                         }
                     }
                 }
                 
-                // Wall particles
+                // Wall atoms
                 const isDoubleWall = materialKey === 'doubleStainless' || materialKey === 'doublePlastic';
                 
                 if (isDoubleWall) {
@@ -803,14 +803,14 @@
                             const x = 205 + col * 8 + (row % 2) * 4;
                             const y = 20 + row * 32;
                             if (y < 380) {
-                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                                this.atoms.push(new Atom(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
                             }
                         }
                     }
                     
                     // Gas in middle
                     for (let i = 0; i < 20; i++) {
-                        this.particles.push(new Particle(
+                        this.atoms.push(new Atom(
                             233 + Math.random() * 134,
                             20 + Math.random() * 360,
                             'wallGas',
@@ -824,7 +824,7 @@
                             const x = 367 + col * 8 + (row % 2) * 4;
                             const y = 20 + row * 32;
                             if (y < 380) {
-                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                                this.atoms.push(new Atom(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
                             }
                         }
                     }
@@ -835,15 +835,15 @@
                             const x = 205 + col * 16 + (row % 2) * 8;
                             const y = 20 + row * 32;
                             if (y < 380 && x < 395) {
-                                this.particles.push(new Particle(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
+                                this.atoms.push(new Atom(x, y, 'wall', wallTemp + (Math.random() - 0.5) * 3));
                             }
                         }
                     }
                 }
                 
-                // Outside particles (gas) - increased count for better thermal mass balance
+                // Outside atoms (gas) - increased count for better thermal mass balance
                 for (let i = 0; i < 60; i++) {
-                    this.particles.push(new Particle(
+                    this.atoms.push(new Atom(
                         410 + Math.random() * 180,
                         20 + Math.random() * 360,
                         'outside',
@@ -885,7 +885,7 @@
                     document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
                     document.getElementById('speedToggle').textContent = '🏃 NORMAL SPEED';
                     
-                    this.initParticles();
+                    this.initAtoms();
                     this.updateInfo();
                     this.draw(); // Ensure visuals update immediately
                 });
@@ -902,7 +902,7 @@
                     if (this.running) {
                         this.running = false;
                         document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
-                        this.initParticles();
+                        this.initAtoms();
                         this.draw(); // Force visual update
                     }
                     this.updateInfo(); // This includes table update
@@ -914,7 +914,7 @@
                         this.running = false;
                         document.getElementById('startStop').textContent = '▶️ START EXPERIMENT';
                     }
-                    this.initParticles();
+                    this.initAtoms();
                     this.draw(); // Force visual update
                 });
                 
@@ -946,47 +946,47 @@
                     speedMult = 1.0; // normal
                 }
                 
-                // Update particle positions
-                for (let particle of this.particles) {
-                    particle.updatePosition(speedMult);
+                // Update atom positions
+                for (let atom of this.atoms) {
+                    atom.updatePosition(speedMult);
                 }
                 
-                // Handle liquid particle collisions for more realistic behavior
-                const liquidParticles = this.particles.filter(p => p.zone === 'inside');
-                for (let i = 0; i < liquidParticles.length; i++) {
-                    for (let j = i + 1; j < liquidParticles.length; j++) {
-                        const p1 = liquidParticles[i];
-                        const p2 = liquidParticles[j];
-                        const dx = p2.x - p1.x;
-                        const dy = p2.y - p1.y;
+                // Handle liquid atom collisions for more realistic behavior
+                const liquidAtoms = this.atoms.filter(p => p.zone === 'inside');
+                for (let i = 0; i < liquidAtoms.length; i++) {
+                    for (let j = i + 1; j < liquidAtoms.length; j++) {
+                        const a1 = liquidAtoms[i];
+                        const a2 = liquidAtoms[j];
+                        const dx = a2.x - a1.x;
+                        const dy = a2.y - a1.y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist > 0 && dist < p1.radius * 2.0) { // Reduced from 2.5 to 2.0 to reduce clustering
-                            const push = (p1.radius * 2.0 - dist) * 0.1; // Reduced push force from 0.15 to 0.1
-                            p1.x -= (dx / dist) * push;
-                            p1.y -= (dy / dist) * push;
-                            p2.x += (dx / dist) * push;
-                            p2.y += (dy / dist) * push;
+                        if (dist > 0 && dist < a1.radius * 2.0) { // Reduced from 2.5 to 2.0 to reduce clustering
+                            const push = (a1.radius * 2.0 - dist) * 0.1; // Reduced push force from 0.15 to 0.1
+                            a1.x -= (dx / dist) * push;
+                            a1.y -= (dy / dist) * push;
+                            a2.x += (dx / dist) * push;
+                            a2.y += (dy / dist) * push;
                         }
                     }
                 }
                 
                 // Energy transfers - process each pair only once for efficiency
-                for (let i = 0; i < this.particles.length; i++) {
-                    for (let j = i + 1; j < this.particles.length; j++) {
-                        this.particles[i].transferEnergy(this.particles[j], conductivity, speedMult);
+                for (let i = 0; i < this.atoms.length; i++) {
+                    for (let j = i + 1; j < this.atoms.length; j++) {
+                        this.atoms[i].transferEnergy(this.atoms[j], conductivity, speedMult);
                     }
                 }
                 
                 // Apply boundary checks
-                for (let particle of this.particles) {
-                    if (particle.zone === 'inside') {
-                        particle.checkBounds(5, 195, 5, 395);
-                    } else if (particle.zone === 'wall') {
-                        particle.checkBounds(205, 395, 5, 395);
-                    } else if (particle.zone === 'wallGas') {
-                        particle.checkBounds(233, 367, 5, 395);
+                for (let atom of this.atoms) {
+                    if (atom.zone === 'inside') {
+                        atom.checkBounds(5, 195, 5, 395);
+                    } else if (atom.zone === 'wall') {
+                        atom.checkBounds(205, 395, 5, 395);
+                    } else if (atom.zone === 'wallGas') {
+                        atom.checkBounds(233, 367, 5, 395);
                     } else {
-                        particle.checkBounds(405, 595, 5, 395);
+                        atom.checkBounds(405, 595, 5, 395);
                     }
                 }
                 
@@ -1039,45 +1039,33 @@
                     this.ctx.globalAlpha = 1;
                 }
                 
-                // Draw boundary lines
-                this.ctx.strokeStyle = '#333';
-                this.ctx.lineWidth = 2;
-                this.ctx.setLineDash([]);
-                // Remove boundary lines - let students observe zones through particle behavior
-                // this.ctx.beginPath();
-                // this.ctx.moveTo(200, 0);
-                // this.ctx.lineTo(200, 400);
-                // this.ctx.moveTo(400, 0);
-                // this.ctx.lineTo(400, 400);
-                // this.ctx.stroke();
-                
-                // Draw particles with uniform sizing
-                for (let particle of this.particles) {
-                    this.ctx.fillStyle = particle.getColor();
+                // Draw atoms with uniform sizing
+                for (let atom of this.atoms) {
+                    this.ctx.fillStyle = atom.getColor();
                     
-                    if (particle.zone === 'wall') {
-                        // Wall particles as squares with vibration visualization
-                        const vibration = Math.max(0, particle.temperature / 80) * 2;
+                    if (atom.zone === 'wall') {
+                        // Wall atoms as squares with vibration visualization
+                        const vibration = Math.max(0, atom.temperature / 80) * 2;
                         this.ctx.fillRect(
-                            particle.x - particle.radius - vibration,
-                            particle.y - particle.radius - vibration,
-                            (particle.radius + vibration) * 2,
-                            (particle.radius + vibration) * 2
+                            atom.x - atom.radius - vibration,
+                            atom.y - atom.radius - vibration,
+                            (atom.radius + vibration) * 2,
+                            (atom.radius + vibration) * 2
                         );
-                    } else if (particle.zone === 'inside') {
-                        // Liquid particles as circles
+                    } else if (atom.zone === 'inside') {
+                        // Liquid atoms as circles
                         this.ctx.beginPath();
-                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.arc(atom.x, atom.y, atom.radius, 0, Math.PI * 2);
                         this.ctx.fill();
-                    } else if (particle.zone === 'wallGas') {
-                        // Gas particles as circles
+                    } else if (atom.zone === 'wallGas') {
+                        // Gas atoms as circles
                         this.ctx.beginPath();
-                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.arc(atom.x, atom.y, atom.radius, 0, Math.PI * 2);
                         this.ctx.fill();
                     } else {
-                        // Outside gas particles as circles
+                        // Outside gas atoms as circles
                         this.ctx.beginPath();
-                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.arc(atom.x, atom.y, atom.radius, 0, Math.PI * 2);
                         this.ctx.fill();
                     }
                 }
@@ -1095,14 +1083,14 @@
             }
             
             updateGraph() {
-                const insideParticles = this.particles.filter(p => p.zone === 'inside');
+                const insideAtoms = this.atoms.filter(p => p.zone === 'inside');
                 
-                if (insideParticles.length === 0) return;
+                if (insideAtoms.length === 0) return;
                 
                 // Stop after collecting 60 data points (60 seconds worth)
                 if (this.currentTrialData.length >= 60) return;
                 
-                const avgInsideTemp = insideParticles.reduce((sum, p) => sum + p.temperature, 0) / insideParticles.length;
+                const avgInsideTemp = insideAtoms.reduce((sum, p) => sum + p.temperature, 0) / insideAtoms.length;
                 this.currentTrialData.push(avgInsideTemp);
                 
                 this.drawGraph();
@@ -1239,28 +1227,28 @@
             }
             
             updateStats() {
-                const insideParticles = this.particles.filter(p => p.zone === 'inside');
-                const wallParticles = this.particles.filter(p => p.zone === 'wall');
-                const wallGasParticles = this.particles.filter(p => p.zone === 'wallGas');
-                const outsideParticles = this.particles.filter(p => p.zone === 'outside');
+                const insideAtoms = this.atoms.filter(p => p.zone === 'inside');
+                const wallAtoms = this.atoms.filter(p => p.zone === 'wall');
+                const wallGasAtoms = this.atoms.filter(p => p.zone === 'wallGas');
+                const outsideAtoms = this.atoms.filter(p => p.zone === 'outside');
                 
-                if (insideParticles.length === 0 || outsideParticles.length === 0) return;
+                if (insideAtoms.length === 0 || outsideAtoms.length === 0) return;
                 
-                const avgInsideTemp = insideParticles.reduce((sum, p) => sum + p.temperature, 0) / insideParticles.length;
-                const avgOutsideTemp = outsideParticles.reduce((sum, p) => sum + p.temperature, 0) / outsideParticles.length;
+                const avgInsideTemp = insideAtoms.reduce((sum, p) => sum + p.temperature, 0) / insideAtoms.length;
+                const avgOutsideTemp = outsideAtoms.reduce((sum, p) => sum + p.temperature, 0) / outsideAtoms.length;
                 
                 let avgWallTemp = 0;
-                if (wallParticles.length > 0) {
-                    const totalWallTemp = wallParticles.reduce((sum, p) => sum + p.temperature, 0);
-                    avgWallTemp = totalWallTemp / wallParticles.length;
+                if (wallAtoms.length > 0) {
+                    const totalWallTemp = wallAtoms.reduce((sum, p) => sum + p.temperature, 0);
+                    avgWallTemp = totalWallTemp / wallAtoms.length;
                 }
                 
                 // Include wall gas temperature if present
-                if (wallGasParticles.length > 0) {
-                    const avgWallGasTemp = wallGasParticles.reduce((sum, p) => sum + p.temperature, 0) / wallGasParticles.length;
+                if (wallGasAtoms.length > 0) {
+                    const avgWallGasTemp = wallGasAtoms.reduce((sum, p) => sum + p.temperature, 0) / wallGasAtoms.length;
                     // For double wall, show combined wall system temperature
-                    avgWallTemp = (avgWallTemp * wallParticles.length + avgWallGasTemp * wallGasParticles.length) / 
-                                (wallParticles.length + wallGasParticles.length);
+                    avgWallTemp = (avgWallTemp * wallAtoms.length + avgWallGasTemp * wallGasAtoms.length) / 
+                                (wallAtoms.length + wallGasAtoms.length);
                 }
                 
                 // Display temperatures
@@ -1268,8 +1256,9 @@
                 document.getElementById('wallTemp').textContent = avgWallTemp.toFixed(1) + '°C';
                 document.getElementById('outsideTemp').textContent = avgOutsideTemp.toFixed(1) + '°C';
                 
-                const timeMult = this.speedMode === 'slow' ? 0.3 : (this.speedMode === 'double' ? 2.0 : 1.0);
-                document.getElementById('timeElapsed').textContent = (this.time * timeMult / 60).toFixed(1) + 's';
+                // Display simulation time (not real time)
+                const simTimeSeconds = this.time / 60; // Convert animation frames to simulation seconds
+                document.getElementById('timeElapsed').textContent = simTimeSeconds.toFixed(1) + 's';
             }
             
             updateInfo() {
