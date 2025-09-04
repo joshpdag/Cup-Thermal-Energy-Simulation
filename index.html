@@ -1268,9 +1268,8 @@
                 document.getElementById('wallTemp').textContent = avgWallTemp.toFixed(1) + '°C';
                 document.getElementById('outsideTemp').textContent = avgOutsideTemp.toFixed(1) + '°C';
                 
-                // Display simulation time (not real time)
-                const simTimeSeconds = this.time / 60; // Convert animation frames to simulation seconds
-                document.getElementById('timeElapsed').textContent = simTimeSeconds.toFixed(1) + 's';
+                const timeMult = this.speedMode === 'slow' ? 0.3 : (this.speedMode === 'double' ? 2.0 : 1.0);
+                document.getElementById('timeElapsed').textContent = (this.time * timeMult / 60).toFixed(1) + 's';
             }
             
             updateInfo() {
