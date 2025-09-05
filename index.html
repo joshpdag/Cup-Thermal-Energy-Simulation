@@ -401,16 +401,16 @@
                 
                 <div class="stats">
                     <div class="stat-box">
-                        <div class="stat-label">Inside Temp</div>
-                        <div class="stat-value" id="insideTemp">--°C</div>
+                        <div class="stat-label">Inside KE</div>
+                        <div class="stat-value" id="insideTemp">--</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Wall Temp</div>
-                        <div class="stat-value" id="wallTemp">--°C</div>
+                        <div class="stat-label">Wall KE</div>
+                        <div class="stat-value" id="wallTemp">--</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Outside Temp</div>
-                        <div class="stat-value" id="outsideTemp">--°C</div>
+                        <div class="stat-label">Outside KE</div>
+                        <div class="stat-value" id="outsideTemp">--</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-label">Time</div>
@@ -530,6 +530,15 @@
         function tempToKe(temp) {
             // Map temperature to KE
             return Math.max(0, Math.min(1, (temp - 5) / 75));
+        }
+        
+        function tempToKERating(temp) {
+            // Convert temperature to KE rating for display
+            if (temp > 70) return 'Very High KE';
+            if (temp > 50) return 'High KE';
+            if (temp > 30) return 'Medium KE';
+            if (temp > 15) return 'Low KE';
+            return 'Very Low KE';
         }
         
         class Atom {
@@ -1070,6 +1079,9 @@
                     }
                 }
                 
+                // Draw energy flow arrows
+                this.drawEnergyFlowArrows();
+                
                 // Labels
                 this.ctx.fillStyle = '#333';
                 this.ctx.font = 'bold 14px Arial';
@@ -1109,7 +1121,7 @@
                 // Draw arrows based on temperature gradients
                 this.ctx.strokeStyle = '#ff0000';
                 this.ctx.fillStyle = '#ff0000';
-                this.ctx.lineWidth = 2;
+                this.ctx.lineWidth = 3;
                 
                 // Arrow between inside and wall
                 const insideWallDiff = avgInsideTemp - avgWallTemp;
@@ -1327,10 +1339,10 @@
                                 (wallAtoms.length + wallGasAtoms.length);
                 }
                 
-                // Display temperatures
-                document.getElementById('insideTemp').textContent = avgInsideTemp.toFixed(1) + '°C';
-                document.getElementById('wallTemp').textContent = avgWallTemp.toFixed(1) + '°C';
-                document.getElementById('outsideTemp').textContent = avgOutsideTemp.toFixed(1) + '°C';
+                // Display KE ratings instead of temperatures
+                document.getElementById('insideTemp').textContent = tempToKERating(avgInsideTemp);
+                document.getElementById('wallTemp').textContent = tempToKERating(avgWallTemp);
+                document.getElementById('outsideTemp').textContent = tempToKERating(avgOutsideTemp);
                 
                 // Display simulation time (not real time)
                 const simTimeSeconds = this.time / 60; // Convert animation frames to simulation seconds
